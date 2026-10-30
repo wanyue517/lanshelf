@@ -106,14 +106,6 @@ async function removeItem(item: ShelfItem): Promise<void> {
   await action(() => window.lanShelf.removeItem(item.id))
 }
 
-async function startNativeDrag(event: DragEvent, item: ShelfItem): Promise<void> {
-  event.preventDefault()
-  event.stopPropagation()
-  if (!item.available) return message('来源设备离线，文件暂时不可用')
-  if (!item.cached) return message('远程文件首次拖出前，请先点击下载按钮')
-  await action(() => window.lanShelf.startDrag(item.id))
-}
-
 function iconFor(item: ShelfItem): string {
   if (item.kind === 'folder' || /\.zip$/i.test(item.name)) return '🗜️'
   if (item.kind === 'text') return '📝'
@@ -160,6 +152,14 @@ onMounted(() => {
   unsubscribers.push(window.lanShelf.onState(value => { state.value = value }))
   unsubscribers.push(window.lanShelf.onProgress(value => { progress.value[value.itemId] = value }))
   unsubscribers.push(window.lanShelf.onNotice(message))
+  const handleExpand = (event: Event) => { expanded.value = (event as CustomEvent<boolean>).detail }
+  const handleNotice = (event: Event) => { message((event as CustomEvent<string>).detail) }
+  window.addEventListener('shelf:expand', handleExpand)
+  window.addEventListener('shelf:local-notice', handleNotice)
+  unsubscribers.push(() => {
+    window.removeEventListener('shelf:expand', handleExpand)
+    window.removeEventListener('shelf:local-notice', handleNotice)
+  })
   void window.lanShelf.getState().then(value => { state.value = value }).catch(error => message(String(error)))
 })
 onUnmounted(() => {
@@ -224,9 +224,8 @@ onUnmounted(() => {
           <div class="file-grid" :class="{ 'file-list': layout === 'list' }">
             <div v-for="item in filtered" :key="item.ownerId + ':' + item.id"
               class="file-card" :class="{ unavailable: !item.available, 'is-busy': busyItems[item.id] }"
-              :draggable="item.cached && item.available"
-              :title="item.cached ? '拖出到桌面或其他应用；双击直接打开' : '点击下载到本机缓存后即可拖出'"
-              @dragstart="startNativeDrag($event, item)"
+              :draggable="false"
+              :title="item.cached ? '双击打开，或点击另存为' : '点击下载到本机缓存后打开或另存为'"
               @dblclick="openItem(item)">
               <span class="file-symbol">{{ iconFor(item) }}</span>
               <div class="file-data">
@@ -310,7 +309,7 @@ onUnmounted(() => {
 
       <footer class="footer">
         <span><span class="footer-dot"></span> {{ state.deviceName || '正在初始化…' }}</span>
-        <span>{{ tab === 'files' ? '双击打开 · 拖出使用' : '局域网 · 无需中心服务器' }}</span>
+        <span>{{ tab === 'files' ? '双击打开 · 另存为' : '局域网 · 无需中心服务器' }}</span>
       </footer>
     </section>
 

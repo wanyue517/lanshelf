@@ -1,0 +1,36 @@
+[package]
+name = "lanshelf"
+version = "0.1.0"
+description = "LanShelf - LAN shared file shelf"
+authors = ["LanShelf contributors"]
+edition = "2021"
+rust-version = "1.90"
+
+[lib]
+name = "lanshelf_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-autostart = "2"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-global-shortcut = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+axum = "0.8"
+reqwest = { version = "0.12", features = ["json", "stream"] }
+futures-util = "0.3"
+mdns-sd = "0.21"
+uuid = { version = "1", features = ["v4", "serde"] }
+rand = "0.9"
+hostname = "0.4"
+local-ip-address = "0.6"
+zip = { version = "6", default-features = false, features = ["deflate"] }
+opener = "0.8"
+tokio-util = { version = "0.7", features = ["io"] }
+walkdir = "2"
