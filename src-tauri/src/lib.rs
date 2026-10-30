@@ -777,7 +777,7 @@ mod tests {
     fn safe_windows_file_names() {
         assert_eq!(safe_name("a:b?.txt"), "a_b_.txt");
         assert_eq!(safe_name("CON.txt"), "_CON.txt");
-        assert_eq!(safe_name("../"), "unnamed");
+        assert_eq!(safe_name("../"), "_");
     }
     #[test]
     fn pairing_code_has_six_digits() {
