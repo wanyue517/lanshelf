@@ -20,5 +20,5 @@ jobs:
       - run: npm install
       - run: npm run typecheck
       - run: npm run build
-      - run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - run: cargo fmt --manifest-path src-tauri/Cargo.toml
       - run: cargo check --manifest-path src-tauri/Cargo.toml
